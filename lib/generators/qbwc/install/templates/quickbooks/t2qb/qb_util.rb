@@ -1,4 +1,4 @@
-module QbUtil
+module T2Qb::QbUtil
   extend self
   # Contains general functions to integrate Qb
   def job_count

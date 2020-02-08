@@ -1,4 +1,4 @@
-module QbHook
+module T2Qb::QbHook
   # This module serves as the hook for updating Qb to T2's changes. It also adds some functionality for T2 to modify Qb.
   extend ActiveSupport::Concern
 

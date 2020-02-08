@@ -1,7 +1,7 @@
-module QbWorkerUtil
-  def make_runtime # Called from qb_workers in requests.
+module T2Qb::QbWorkerUtil
+  def make_runtime # Called from qb_worker in requests.
     # **Important** - Don't call this in an initializer in the workers or elsewhere.
-    # It is called by the qb_workers (almost)every method due to QBWC not working off of objects in memory, but rather the marked klass in MySQL.
+    # It is called by the qb_worker (almost)every method due to QBWC not working off of objects in memory, but rather the marked klass in MySQL.
     unless self.action.present?
       klass_str      = self.class.to_s
       vals           = klass_str.match(/(.*)Qb(.*)/)
@@ -12,7 +12,7 @@ module QbWorkerUtil
   end
 
   def qb_data_to_instance(data, &block)
-    # Runs from QbWorker.requests being called by a qb_worker klass using super do |qb_obj|...
+    # Runs from QbWorker.requests being called by a t2qb klass using super do |qb_obj|...
     case data
     when Hash
       puts "Hash: #{data}"

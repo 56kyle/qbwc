@@ -12,31 +12,30 @@ module QBWC
       source_root File.expand_path('../templates', __FILE__)
       argument :controller_name, :type => :string, :default => 'qbwc'
 
-      def qb(qb_in= nil)
-        "quickbooks/#{qb_in}"
+      def actions
+        %W(Add, Mod, Del, Query, Void)
       end
 
-      def qb_w(qb_in= nil)
-        qb("qb_worker/#{qb_in}")
+      def qb
+        "quickbooks/"
       end
 
-      def qb_e
-        %W(company, invoice, invoice_line, payment).map!{|qb_entity| qb_w("qb_#{qb_entity}")}
+      def _w
+        "t2qb/"
       end
 
-      def qb_w_dirs
-        qb_e.map do |qb_ent|
-          qb_w(qb_ent)
-        end
+      def _e
+        %W(company, invoice, invoice_line, payment).map!{|qb_entity| "qb_#{qb_entity}"}
       end
 
       def make_quickbooks_directories
-        directory(qb('qb_workers'))
-        directory(qb('bin'))
+        _e.map!{|entity| "#{qb}#{_w}#{entity}"}.each do |ent|
+          directory(ent)
+        end
       end
 
       def copy_under_quickbooks
-        qb_files = %W(qb_hook, qb_util, qb_worker, qb_worker_util).map!{|file| "#{file}.rb"}
+        qb_files = %W(qb_hook, qb_util, t2qb, qb_worker_util).map!{|file| "#{file}.rb"}
         qb_files.each do |qb_file|
           qb_input = qb(qb_file)
           template(qb_input, qb_input)
@@ -44,19 +43,12 @@ module QBWC
       end
 
       def make_qb_worker_directories
-        qb_w_dirs.each do |qb_w_directory|
-          directory(qb_w_directory)
+        qb(_w(_e)).each do |qb_w_e_directory|
+          directory(qb_w_e_directory)
         end
       end
 
-      def copy_qb_worker_actions
-        qb_w_dirs.each do |qb_w_directory|
-          
 
-        end
-
-        qb_directories = %W(qb_w())
-      end
 
       def routes_rb
          "config/routes.rb"

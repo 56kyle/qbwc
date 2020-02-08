@@ -1,7 +1,20 @@
-class QbWorker < QBWC::Worker
-  include QbWorkerUtil
-  attr_accessor :t2_entity, :t2_instance, :id_type, :action # Note- These never stick around. QBWC likes to garbage collect between steps it seems.
-  # Should almost always make_runtime prior to using an instance variable.
+module T2Qb::QbWorker
+  autoload :QbCompany, 'qb_worker/qb_company'
+  autoload :QbInvoice, 'qb_worker/qb_invoice'
+  autoload :QbInvoiceLine, 'qb_worker/qb_invoice_line'
+  autoload :QbPayment, 'qb_worker/qb_payment'
+
+  mattr_accessor :t2_entity
+  @@t2_entity = nil
+
+  mattr_accessor :t2_instance
+  @@t2_instance = nil
+
+  mattr_accessor :qb_entity
+  @@qb_entity = nil
+
+  mattr_accessor :qb_actions
+  @@qb_actions = nil
 
   def requests(job, session, data, &block) # Ideally never is called directly unless trying to manually write a job.
     self.t2_instance = qb_data_to_instance(data, &block)
@@ -13,7 +26,7 @@ class QbWorker < QBWC::Worker
     block_given? ? yield : true
   end
 
-  def handle_response(r, session, job, request, data) # Invoked by qb_worker classes with super{"worker specific actions"}
+  def handle_response(r, session, job, request, data) # Invoked by t2qb classes with super{"worker specific actions"}
     make_runtime
     qb_id     = case self.t2_entity
                 when Invoice then r[:invoice_ret][:txn_id]
@@ -54,5 +67,4 @@ class QbWorker < QBWC::Worker
 
     return nil
   end
-
 end

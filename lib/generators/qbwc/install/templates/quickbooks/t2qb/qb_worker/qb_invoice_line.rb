@@ -1,0 +1,2 @@
+class QbInvoiceLine
+end
