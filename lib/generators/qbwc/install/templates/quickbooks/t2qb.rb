@@ -8,16 +8,13 @@ module T2Qb
   @@t2_entities = [Company, Invoice, InvoiceLine, InvoicePayment]
 
   mattr_reader :qb_actions
-  @@qb_actions = [Add, Mod, Del, Query, Void]
-
-
+  @@qb_actions = %W(Add, Mod, Del, Query, Void)
 
   class << self
     def qb_update_all
 
     end
     def to_qb
-      if self.t
     end
   end
 end

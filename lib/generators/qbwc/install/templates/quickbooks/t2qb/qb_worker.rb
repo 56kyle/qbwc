@@ -4,17 +4,11 @@ module T2Qb::QbWorker
   autoload :QbInvoiceLine, 'qb_worker/qb_invoice_line'
   autoload :QbPayment, 'qb_worker/qb_payment'
 
-  mattr_accessor :t2_entity
-  @@t2_entity = nil
+  mattr_reader :t2_entities
+  @@t2_entities = [Company, Invoice, InvoiceLine, Payment]
 
-  mattr_accessor :t2_instance
-  @@t2_instance = nil
+  mattr_
 
-  mattr_accessor :qb_entity
-  @@qb_entity = nil
-
-  mattr_accessor :qb_actions
-  @@qb_actions = nil
 
   def requests(job, session, data, &block) # Ideally never is called directly unless trying to manually write a job.
     self.t2_instance = qb_data_to_instance(data, &block)

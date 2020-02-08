@@ -1,4 +1,4 @@
-class DelQbCompany < QbWorker
+class QbWorker::Del < QBWC::Worker
   def requests(job, session, data)
     make_runtime
     req = -> (qb_list_item) do
