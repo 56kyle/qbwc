@@ -5,7 +5,7 @@ QBWC.configure do |c|
   c.password = "bar"
 
   # Path to QuickBooks company file on the client. Empty string to use whatever file is open when the connector runs.
-  c.company_file_path = nil #"//SALESOFFICE/quickbooks/BrandsIns.QBW"
+  c.company_file_path = nil
   # I believe that the commented out path is correct, but I would like to make sure nothing connects before we are ready.
 
   # Instead of using hard coded username, password, and path, use a proc

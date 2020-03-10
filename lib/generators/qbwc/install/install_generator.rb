@@ -12,50 +12,43 @@ module QBWC
       source_root File.expand_path('../templates', __FILE__)
       argument :controller_name, :type => :string, :default => 'qbwc'
 
-      def qb(qb_in= nil)
-        "quickbooks/#{qb_in}"
-      end
-
-      def qb_w(qb_in= nil)
-        qb("qb_worker/#{qb_in}")
-      end
-
-      def qb_e
-        %W(company, invoice, invoice_line, payment).map!{|qb_entity| qb_w("qb_#{qb_entity}")}
-      end
-
-      def qb_w_dirs
-        qb_e.map do |qb_ent|
-          qb_w(qb_ent)
-        end
-      end
-
       def make_quickbooks_directories
-        directory(qb('qb_workers'))
-        directory(qb('bin'))
+        aq = 'app/quickbooks/'
+        directory(aq)
+        directory(aq + 'qb/')
+        directory(aq + 'qb/companies/')
+        directory(aq + 'qb/invoices/')
+        directory(aq + 'qb/payments/')
       end
 
       def copy_under_quickbooks
-        qb_files = %W(qb_hook, qb_util, qb_worker, qb_worker_util).map!{|file| "#{file}.rb"}
-        qb_files.each do |qb_file|
-          qb_input = qb(qb_file)
-          template(qb_input, qb_input)
-        end
-      end
+        aq = 'app/quickbooks/'
 
-      def make_qb_worker_directories
-        qb_w_dirs.each do |qb_w_directory|
-          directory(qb_w_directory)
-        end
-      end
+        template(aq + 'qb_worker.rb', aq + 'qb_worker.rb')
+        template(aq + 'qb_hook.rb', aq + 'qb_hook.rb')
+        template(aq + 'grammar.rb', aq + 'grammar.rb')
+        template(aq + 'README.md', aq + 'README.md')
 
-      def copy_qb_worker_actions
-        qb_w_dirs.each do |qb_w_directory|
-          
+        template(aq + 'qb/qb_c.rb', aq + 'qb/qb_c.rb')
+        template(aq + 'qb/qb_i.rb', aq + 'qb/qb_i.rb')
+        template(aq + 'qb/qb_p.rb', aq + 'qb/qb_p.rb')
 
-        end
+        template(aq + 'qb/companies/add.rb', aq + 'qb/companies/add.rb')
+        template(aq + 'qb/companies/mod.rb', aq + 'qb/companies/mod.rb')
+        template(aq + 'qb/companies/del.rb', aq + 'qb/companies/del.rb')
+        template(aq + 'qb/companies/query.rb', aq + 'qb/companies/query.rb')
 
-        qb_directories = %W(qb_w())
+        template(aq + 'qb/invoices/add.rb', aq + 'qb/invoices/add.rb')
+        template(aq + 'qb/invoices/mod.rb', aq + 'qb/invoices/mod.rb')
+        template(aq + 'qb/invoices/del.rb', aq + 'qb/invoices/del.rb')
+        template(aq + 'qb/invoices/query.rb', aq + 'qb/invoices/query.rb')
+        template(aq + 'qb/invoices/void.rb', aq + 'qb/invoices/void.rb')
+
+        template(aq + 'qb/payments/add.rb', aq + 'qb/payments/add.rb')
+        template(aq + 'qb/payments/mod.rb', aq + 'qb/payments/mod.rb')
+        template(aq + 'qb/payments/del.rb', aq + 'qb/payments/del.rb')
+        template(aq + 'qb/payments/query.rb', aq + 'qb/payments/query.rb')
+        template(aq + 'qb/payments/void.rb', aq + 'qb/payments/void.rb')
       end
 
       def routes_rb
@@ -76,6 +69,8 @@ module QBWC
         migration_template 'db/migrate/index_qbwc_jobs.rb',      'db/migrate/index_qbwc_jobs.rb'
         migration_template 'db/migrate/change_request_index.rb', 'db/migrate/change_request_index.rb'
         migration_template 'db/migrate/session_pending_jobs_text.rb', 'db/migrate/session_pending_jobs_text.rb'
+        migration_template 'db/migrate/add_qb_id_to_payments.rb', 'db/migrate/add_qb_id_to_payments.rb'
+        migration_template 'db/migrate/add_qb_id_to_invoice_lines.rb', 'db/migrate/add_qb_id_to_invoice_lines.rb'
       end
 
       def self.next_migration_number(dirname)
