@@ -14,8 +14,11 @@ module QBWC
 
       def make_quickbooks_directories
         aq = 'app/quickbooks/'
-        directory(aq)
+
+        directory(aq) # Root Folder
         directory(aq + 'qb/')
+
+        # Entity Action Module's Directories
         directory(aq + 'qb/companies/')
         directory(aq + 'qb/invoices/')
         directory(aq + 'qb/payments/')
@@ -24,26 +27,31 @@ module QBWC
       def copy_under_quickbooks
         aq = 'app/quickbooks/'
 
+        # Top Level Files
         template(aq + 'qb_worker.rb', aq + 'qb_worker.rb')
         template(aq + 'qb_hook.rb', aq + 'qb_hook.rb')
         template(aq + 'grammar.rb', aq + 'grammar.rb')
         template(aq + 'README.md', aq + 'README.md')
 
+        # T2 Entity Classes
         template(aq + 'qb/qb_c.rb', aq + 'qb/qb_c.rb')
         template(aq + 'qb/qb_i.rb', aq + 'qb/qb_i.rb')
         template(aq + 'qb/qb_p.rb', aq + 'qb/qb_p.rb')
 
+        # Company Action Classes
         template(aq + 'qb/companies/add.rb', aq + 'qb/companies/add.rb')
         template(aq + 'qb/companies/mod.rb', aq + 'qb/companies/mod.rb')
         template(aq + 'qb/companies/del.rb', aq + 'qb/companies/del.rb')
         template(aq + 'qb/companies/query.rb', aq + 'qb/companies/query.rb')
 
+        # Invoice Action Classes
         template(aq + 'qb/invoices/add.rb', aq + 'qb/invoices/add.rb')
         template(aq + 'qb/invoices/mod.rb', aq + 'qb/invoices/mod.rb')
         template(aq + 'qb/invoices/del.rb', aq + 'qb/invoices/del.rb')
         template(aq + 'qb/invoices/query.rb', aq + 'qb/invoices/query.rb')
         template(aq + 'qb/invoices/void.rb', aq + 'qb/invoices/void.rb')
 
+        # Payment Action Classes
         template(aq + 'qb/payments/add.rb', aq + 'qb/payments/add.rb')
         template(aq + 'qb/payments/mod.rb', aq + 'qb/payments/mod.rb')
         template(aq + 'qb/payments/del.rb', aq + 'qb/payments/del.rb')
