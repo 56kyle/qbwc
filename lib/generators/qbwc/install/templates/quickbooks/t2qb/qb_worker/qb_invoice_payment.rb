@@ -1,2 +1,0 @@
-module QbWorker::QbInvoicePayment
-end
