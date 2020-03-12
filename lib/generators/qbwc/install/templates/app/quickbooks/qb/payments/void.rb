@@ -11,7 +11,7 @@ module Qb
         super do
           {
               txn_void_rq: {
-                  txn_void_type: @qb_entity,
+                  txn_void_type: 'Check',
                   txn_id: data[:qb_id]
               }
           }

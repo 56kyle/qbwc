@@ -2,7 +2,7 @@ module Qb
   class QbC < QbWorker
     include Companies
 
-    def initialize
+    def initialize(data = nil)
       @qb_entity = "Customer"
       @t2_entity = Company
       super
@@ -12,10 +12,12 @@ module Qb
       super do |status|
         r = nil
         r = block_given? ? yield : response['customer_ret'] if response
-        if status == 'Info'
-          data[:qb_id] = "#{r['list_id'].split('-').first}-#{r['edit_sequence']}" if r['list_id'] && r['edit_sequence']
+        if status == 'Info' && r
+          puts r
+          data[:qb_id] = r['list_id'] if r['list_id']
+          data[:edit_sequence] = r['edit_sequence'] if r['edit_sequence']
           job.data=(data)
-          update_qb_id(data)
+          update_qb_id(data) unless @t2_instance&.qb_id
         end
       end
     end

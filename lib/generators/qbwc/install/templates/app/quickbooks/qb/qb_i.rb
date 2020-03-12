@@ -13,10 +13,11 @@ module Qb
       super do |status|
         r = nil
         r = block_given? ? yield : response['invoice_ret'] if response
-        if status == 'Info'
-          data[:qb_id] = "#{r['txn_id'].split('-').first}-#{r['edit_sequence']}" if r['txn_id'] && r['edit_sequence']
+        if status == 'Info' && r
+          data[:qb_id] = r['txn_id'] if r['txn_id']
+          data[:edit_sequence] = r['edit_sequence'] if r['edit_sequence']
           job.data=(data)
-          update_qb_id(data)
+          update_qb_id(data) unless @t2_instance&.qb_id
         end
 
       end
@@ -40,6 +41,19 @@ module Qb
         }}
     end
 
+    def invoice_line_mod(data)
+      if data[:invoice_lines]
+        @t2_instance.invoice_lines.map { |il|
+          {edit_sequence: data[:invoice_lines][il.qb_id.to_sym],
+          item_ref: {
+              full_name: item_codes[@t2_instance.bill_type]
+          },
+           desc: @t2_instance.description,
+           amount: "%.2f" % il.amount
+          }}
+      end
+    end
+
     def qbi; block_given? ? made(@qb_entity) do yield end : self.chain=nil; made(@qb_entity) end
     def qbil; @t2_instance.invoice_lines if @t2_instance end
     def qbc; @t2_instance.company if @t2_instance end
@@ -48,7 +62,7 @@ module Qb
     def txn_date; @t2_instance.generated_date if @t2_instance end
     def ref_number; @t2_instance.invoice_number if @t2_instance end
     def due_date; @t2_instance.due_date if @t2_instance end
-    def is_pending; if @t2_instance.invoice_payments; @t2_instance.invoice_payments.present? else; true end end
+    def is_pending; @t2_instance.invoice_payments&.to_a&.empty?.to_s end
     def service_date; @t2_instance.generated_date if @t2_instance end
 
     def item_codes

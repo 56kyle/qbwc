@@ -9,8 +9,7 @@ class QbWorker < QBWC::Worker
 
   def requests(job, session, data) # Ideally never is called directly unless trying to manually write a job.
     set_t2_instance(data)
-    return parse_rq(yield) if block_given?
-    nil
+    block_given? ? parse_rq(yield) : nil
   end
 
   def should_run?(job, session, data) # Pretty important piece since it is difficult to modify QBWC queueing. However, it may take multiple QWC prompts for certain actions to complete.
@@ -22,8 +21,8 @@ class QbWorker < QBWC::Worker
     set_t2_instance(data)
     status = determine_status(response)
     yield(status) if block_given?
-    run_post_actions(data)
-    QBWC.delete_job(job)
+    self.class.module_parent::Mod.act(data) if self.class.to_s.include?("Query") && data[:filters].nil?
+    QBWC.delete_job(job) unless status == 'Error'
   end
 
   def determine_status(response) # Extra parameters aren't used as inputs really, just making sure they are declared.
@@ -39,10 +38,6 @@ class QbWorker < QBWC::Worker
 
   def set_t2_instance(data)
     @t2_instance = @t2_entity.find_by(id: data[:id]) if data && data[:id]
-  end
-
-  def run_post_actions(data)
-    instance_eval(data[:after_do]) if data[:after_do].is_a?(String) # Avoiding the use of this unless for temporary fixes. Permanent use is asking for trouble.
   end
 
   def parse_rq(rq)
@@ -99,24 +94,31 @@ class QbWorker < QBWC::Worker
     end
 
     def mod_act(data) # Since the information is not pulled from t2 until the request is processed, if there is already a mod in queue then another would be redundant.
-      undesired_actions = [self.module_parent::Add.to_s, self.module_parent::Mod.to_s]
-      QBWC.get_job({})
-      return nil if QBWC.jobs.map{|j| [j.worker_class, j.data[:id]]}.select{|j_array| undesired_actions.include?(j_array[0]) && data[:id] == j_array[1]}.present?
-      self.make_query(data) unless data[:qb_id]
-      self.make_job(data)
+      if data.is_a?(Hash) && data[:edit_sequence] && data[:qb_id]
+        self.make_job(data)
+      elsif data[:qb_id] && data[:edit_sequence].nil?
+        if self.new.t2_entity != Company && self.new(data).t2_instance&.void
+          self.module_parent::Void.act(data)
+        else
+          self.module_parent::Query.act(data)
+        end
+      end
     end
 
     def del_act(data) # This one is a bit weird due to the t2_instance being lost before request processing. Data holds all necessary values to delete.
       self.remove_instance_jobs_when do |j_array| # j_array = QBWC.jobs.map{|j| [j.name, j.worker_class, j.data[:id]] }
         worker_parent_module_name = j_array[1].split('::')[0,1].join('::')
         if worker_parent_module_name == self.module_parent.to_s
-          j_array[1] != self.to_s && j_array[2] == data[:id]
+          j_array[1] != self.to_s && j_array[2] == data[:id] ? true : nil
+        else
+          nil
         end
       end
       self.make_job(data) if data[:qb_id]
     end
 
     def query_act(data)
+      return nil if QBWC.jobs.map{|j| [j.worker_class, j.data[:id]] }.include?([self.to_s, data[:id]])
       self.make_job(data) if data[:qb_id] || data.keys.select{|key| key.to_s.underscore.include?('filter')}&.present?
     end
 
@@ -181,41 +183,6 @@ class QbWorker < QBWC::Worker
 
     def make_job(data) # QBWC.add_job with less of the pain caused by 5 mandatory parameters.
       QBWC.add_job(self.make_job_name(data), true, nil, self, nil, data)
-    end
-
-    # ================== Filters below ===========================================
-    def name_filter(data)
-      if data[:name_filter]
-        data[:name_filter]
-      end
-    end
-
-    def txn_date_range_filter(data)
-      if data[:txn_date_range_filter]
-        {
-            from_txn_date: data[:txn_date_range_filter][:from_txn_date],
-            to_txn_date: data[:txn_date_range_filter][:to_txn_date]
-        }
-      end
-    end
-
-    def entity_filter(data)
-      if data[:entity_filter]
-        {
-            full_name: data[:entity_filter][:full_name]
-        }
-      end
-    end
-
-    def ref_number_filter(data)
-      if data[:ref_number_filter]
-        {
-            match_criteria: data[:ref_number_filter][:match_criteria],
-            ref_number: data[:ref_number_filter][:ref_number]
-        }
-      else
-        nil
-      end
     end
   end
 end

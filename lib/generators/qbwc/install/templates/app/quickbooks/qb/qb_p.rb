@@ -12,10 +12,11 @@ module Qb
       super do |status|
         r = nil
         r = block_given? ? yield : response['receive_payment_ret'] if response
-        if status == 'Info'
-          data[:qb_id] = "#{r['txn_id'].split('-').first}-#{r['edit_sequence']}" if r['txn_id'] && r['edit_sequence']
+        if status == 'Info' && r
+          data[:qb_id] = r['txn_id'] if r['txn_id']
+          data[:edit_sequence] = r['edit_sequence'] if r['edit_sequence']
           job.data=(data)
-          update_qb_id(data)
+          update_qb_id(data) unless @t2_instance&.qb_id
         end
       end
     end
@@ -34,7 +35,16 @@ module Qb
           payment_amount: "%.2f" % @t2_instance.amount
       }
     end
-    alias_method(:applied_to_txn_mod, :applied_to_txn_add)
+
+    def applied_to_txn_mod(data)
+      if data[:invoice_payments]
+        {
+            txn_line_id: @t2_instance.invoices.first.qb_id,
+            edit_sequence: data[:invoice_payments],
+            payment_amount: "%.2f" % @t2_instance.amount
+        }
+      end
+    end
 
     def qbp; nil; block_given? ? made(@qb_entity) do yield end : made(@qb_entity) end
     def qbi; @t2_instance.invoices if @t2_instance end

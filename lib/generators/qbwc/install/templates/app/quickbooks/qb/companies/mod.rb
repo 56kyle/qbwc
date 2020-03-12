@@ -13,7 +13,7 @@ module Qb
             qbc.mod do
               {
                   list_id: data[:qb_id],
-                  edit_sequence: data[:qb_id].split('-').second,
+                  edit_sequence: data[:edit_sequence],
                   name: _name,
                   company_name: company_name
               }

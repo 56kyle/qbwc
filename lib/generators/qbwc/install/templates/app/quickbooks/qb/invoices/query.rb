@@ -12,10 +12,15 @@ module Qb
           qbi.query.rq do
             {
               txn_id: txn_id,
-              ref_number: ref_number,
+              ref_number: data[:ref_number_filter],
               txn_date_range_filter: data[:txn_date_range_filter]
             }
           end
+        end
+      end
+      def handle_response(response, session, job, request, data)
+        super do
+          response['invoice_ret'][0]
         end
       end
 

@@ -17,6 +17,11 @@ module Qb
           end
         end
       end
+      def handle_response(response, session, job, request, data)
+        super do
+          response['customer_ret'][0]
+        end
+      end
 
     end
   end

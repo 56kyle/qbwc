@@ -15,12 +15,15 @@ module Qb
             qbp.mod do
               {
                   txn_id: data[:qb_id],
-                  edit_sequence: data[:qb_id].split('-').second,
+                  edit_sequence: data[:edit_sequence],
                   customer_ref: customer_ref,
                   txn_date: txn_date,
                   ref_number: ref_number,
                   total_amount: total_amount,
-                  is_auto_apply: true
+                  payment_method_ref: {
+                      full_name: 'cash'
+                  },
+                  applied_to_txn_mod: applied_to_txn_mod(data)
               }
             end
           end

@@ -16,6 +16,9 @@ module Qb
                   txn_date: txn_date,
                   ref_number: ref_number,
                   total_amount: total_amount,
+                  payment_method_ref: {
+                      full_name: 'cash'
+                  },
                   is_auto_apply: true
               }
             end
