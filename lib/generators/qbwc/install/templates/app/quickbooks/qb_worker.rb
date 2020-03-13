@@ -94,6 +94,7 @@ class QbWorker < QBWC::Worker
     end
 
     def mod_act(data) # Since the information is not pulled from t2 until the request is processed, if there is already a mod in queue then another would be redundant.
+      return nil if QBWC::ActiveRecord::Job::QbwcJob.select(:worker_class, :data).where(worker_class: self.module_parent::Add.to_s, data: {id: data[:id]}.to_s).present?
       if data.is_a?(Hash) && data[:edit_sequence] && data[:qb_id]
         self.make_job(data)
       elsif data[:qb_id] && data[:edit_sequence].nil?
@@ -107,7 +108,7 @@ class QbWorker < QBWC::Worker
 
     def del_act(data) # This one is a bit weird due to the t2_instance being lost before request processing. Data holds all necessary values to delete.
       self.remove_instance_jobs_when do |j_array| # j_array = QBWC.jobs.map{|j| [j.name, j.worker_class, j.data[:id]] }
-        worker_parent_module_name = j_array[1].split('::')[0,1].join('::')
+        worker_parent_module_name = j_array[1].match(/(?<mod_name>.*)::.*?/)[:mod_name]
         if worker_parent_module_name == self.module_parent.to_s
           j_array[1] != self.to_s && j_array[2] == data[:id] ? true : nil
         else
@@ -118,7 +119,7 @@ class QbWorker < QBWC::Worker
     end
 
     def query_act(data)
-      return nil if QBWC.jobs.map{|j| [j.worker_class, j.data[:id]] }.include?([self.to_s, data[:id]])
+      return nil if QBWC::ActiveRecord::Job::QbwcJob.select(:worker_class, :data).where(worker_class: self.to_s, data: data)&.present?
       self.make_job(data) if data[:qb_id] || data.keys.select{|key| key.to_s.underscore.include?('filter')}&.present?
     end
 
@@ -158,16 +159,6 @@ class QbWorker < QBWC::Worker
         data[:id] = qb_input.id if qb_input.respond_to?(:id)
         data[:qb_id] = qb_input.qb_id if qb_input.respond_to?(:qb_id)
         data.present? ? data : nil
-      end
-    end
-
-    def needs_query? # AKA does this need a qb_id?
-      root = self.module_parent
-      case self.new
-      when root::Mod then true
-      when root::Del then true
-      when root::Void then true
-      else false
       end
     end
 

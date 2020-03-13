@@ -3,7 +3,7 @@ module Qb
     class Add < Qb::QbC
       def should_run?(job, session, data)
         super do
-          @t2_instance ? true : false
+          @t2_instance ? true : false # I know this is wordy but Quickbooks gives vague error codes and I was ruling out all options.
         end
       end
 
