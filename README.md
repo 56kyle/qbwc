@@ -1,5 +1,5 @@
 # Quickbooks Integration
-*In memory of my sanity ~*
+*In memory of my sanity~**
 ```
     0x80040400: QuickBooks found an error when parsing the provided XML text stream.
 ```
