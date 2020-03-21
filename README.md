@@ -12,6 +12,7 @@ If you need to persist Information use either data[(foo)] (Please keep data as a
 + [Quickbooks Integration](#quickbooks-integration)
     + [Most Important Information](#most-important-information)
     + [Index](#index)
+    + [A Note to Everyone in IT](#a-note-to-everyone-in-it)
     + [Dictionary](#dictionary)
     + [Structure](#structure)
     + [Current Progress](#current-progress)
@@ -24,6 +25,9 @@ If you need to persist Information use either data[(foo)] (Please keep data as a
         + [Directories/Files](#directoriesfiles)
         + [Migrations](#migrations-in-dbmigrate)
         + [QBWC Other Changes](#qbwc-other-changes)
+        
+## A Note to Everyone in IT ##
+I just want to say to say thank you for being accomodating of all the weirdness involved with this project. While I may be a bit sarcastic/etc throughout parts of this project, it is mainly caused by frusteration and I don't want it to obscure how gratful I am to have gotten to work on this. There 
 
 ## Dictionary ##
 **QBWC** - The qbwc gem that this project is centered around. \
