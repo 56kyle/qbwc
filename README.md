@@ -15,6 +15,7 @@ If you need to persist Information use either data[(foo)] (Please keep data as a
     + [Dictionary](#dictionary)
     + [Structure](#structure)
     + [Current Progress](#current-progress)
+    + [TODO](#todo)
     + [Important Variables](#important-variables)
         + [Entity Class](#entity-class)
     + [Logic Flow](#logic-flow)
@@ -68,6 +69,11 @@ If you need to persist Information use either data[(foo)] (Please keep data as a
             - [x] Query
             - [ ] Void
             
+## TODO ##
+    + Change all uses of &. to the longer version with && (I can not express how much pain this will bring me. This goes against every fiber of my being.)
+    + Check if this can be used with the qbwc ~> 1.0.0 as a base since that should allow usage of ruby 2.2.2
+    + Contemplate the morality/ethical concerns of backporting this for ruby 2.2.2 when it was depreciated in 2018. I can only imagine the sheer quantity of security issues involved with using such an old version of ruby.
+
 ## Important Variables ##
 ##### Entity Class #####
     @qb_entity = String; Qb name for the entity. (CamelCase)
